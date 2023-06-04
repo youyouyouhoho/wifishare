@@ -2,7 +2,7 @@ const fs = require('fs');
 const {ethers} = require("hardhat")
 async function main()
 {   
-    const Wifidemo = await ethers.getContractFactory("Ourwifidapp");
+    const Wifidemo = await ethers.getContractFactory("testwifidemo");
     console.log("Deploy contract .....")
     const wifidemo = await Wifidemo.deploy()
     await wifidemo.deployed()
@@ -13,7 +13,7 @@ async function main()
     console.log(`ownerAddress: ${wifidemo.signer.address}`);
     const chainId = await ethers.provider.getNetwork().then((network) => network.chainId);
     console.log("Chain ID:", chainId);
-    fs.writeFileSync('./config.js', `
+    fs.writeFileSync('./config2.js', `
     export const chainId = "${chainId}"
     export const contractAddress = "${wifidemo.address}"
     export const ownerAddress = "${wifidemo.signer.address}"

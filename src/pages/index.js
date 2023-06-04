@@ -2,14 +2,12 @@ import Head from "next/head";
 import styles from "../styles/home.module.css";
 import Header from "components/header";
 import { useMoralis } from "react-moralis";
-
-import { abi, contractAddress_local,contractAddress_mumbai } from "config"
+import { contractAddress_ganache } from "config2"
+import { abi, contractAddress_local, contractAddress_mumbai } from "config"
 import { useWeb3Contract } from "react-moralis"
-import { useEffect, useState ,useRef} from "react"
+import { useEffect, useState, useRef } from "react"
 import { useNotification } from "@web3uikit/core"
 import { ethers } from "ethers"
-
-const supportedChains = ["31337", "11155111"]
 
 function isValidWifiprice(wifi_price) {
   if (wifi_price >= 0) {
@@ -28,25 +26,17 @@ function isValidshopid(shopid) {
     return false;
   }
 }
-export default function Home() {
+export default function home() {
   const { isWeb3Enabled, chainId } = useMoralis();
-
-  const [entranceFee, setEntranceFee] = useState("0")
-
   const dispatch = useNotification()
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [wifiPrice, setWifiPrice] = useState('');
   const [shopId, setShopId] = useState('');
   const [locationUpload, setLocationUpload] = useState('');
   const [wifiUpload, setWifiUpload] = useState('');
-  // let _wifiprice_up = ethers.utils.parseEther('0');
-  // let _shop_id;
-  // let _wifixinxi;
-  // let _location;
-  const [_wifiprice_up, set_wifiprice_up] = useState('');
-  const [_shop_id, set_shop_id] = useState('');
-  const [_wifixinxi, set_wifixinxi] = useState('');
-  const [_location, set_location] = useState('');
+
   const handleWifiPriceChange = (event) => {
     const value = event.target.value;
     setWifiPrice(value);
@@ -64,26 +54,48 @@ export default function Home() {
   const handleWifiUploadChange = (event) => {
     setWifiUpload(event.target.value);
   };
+  //暂时用钩子记录request
+  const [requestID, setrequestID] = useState(0);
+  const [price_download, setprice_download] = useState(0);
+  const [location_download, setlocation_download] = useState('');
+  const [time_download, settime_download] = useState('');
+  const [isLoading_request, setisLoading_request] = useState(false);
+  const [isLoading_paying, setisLoading_paying] = useState(false);
+  const [isLoading_showrid, setisLoading_showrid] = useState(false);
+  const [isLoading_showup, setisLoading_showup] = useState(false);
+  const [isLoading_showdown, setisLoading_showdown] = useState(false);
+  const [uploader_addr, setuploader_addr] = useState('');
+  const [downloader_addr, setdownloader_addr] = useState('');
+
+  const handleuploader_addr = (event) => {
+    const value = event.target.value;
+    setuploader_addr(value);
+  };
+
+  const handledownloader_addr = (event) => {
+    const value = event.target.value;
+    setdownloader_addr(value);
+  };
+
+  const handleprice_download = (event) => {
+    const value = event.target.value;
+    setprice_download(value);
+  };
 
 
-  const {
-    runContractFunction: Upload_Wifiprint,
-    data: uploadTxResponse,
-    isLoading,
-    isFetching,
-  } = useWeb3Contract({
-    abi: abi,
-    contractAddress: contractAddress_mumbai,
-    functionName: "Upload_Wifiprint",
-    msgValue: entranceFee,
-    params: {
-      _wifiprint: _wifixinxi,
-      location: _location,
-      _price: _wifiprice_up,
-      shop: _shop_id,
-    },
-  })
+  const handlelocation_download = (event) => {
+    const value = event.target.value;
+    setlocation_download(value);
+  };
 
+  const handlerequestID = (event) => {
+    const value = event.target.value;
+    setrequestID(value);
+  };
+  const handletime_download = (event) => {
+    const value = event.target.value;
+    settime_download(value);
+  };
   const handlewifiprice = () => {
     dispatch({
       type: "info",
@@ -113,128 +125,16 @@ export default function Home() {
       icon: "bell",
     })
   }
-
-  const handleSuccess = async (tx) => {
-    try {
-      await tx.wait(1)
-      console.log(`response: ${downloadTxResponse}`);
-      handleNewNotification(tx)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  useEffect(() => {
-    
-    console.log(`_wifixinxi:${_wifixinxi}`);
-
-  }, [_wifixinxi]);
-  useEffect(() => {
-    
-    console.log(`_location:${_location}`);
-
-  }, [_location]);
-  useEffect(() => {
-    
-    console.log(`_wifiprice_up:${_wifiprice_up}`);
-
-  }, [_wifiprice_up]);
-  useEffect(() => {
-    const handleUpload = async () => {
-      try {
-        await Upload_Wifiprint({
-          // onComplete:
-          // onError:
-          onSuccess: handleSuccess,
-          onError: (error) => console.log(error),
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    console.log("about to func")
-    console.log(`_wifixinxi:${_wifixinxi}`);
-    console.log(`_location:${_location}`);
-    console.log(`_wifiprice_up:${_wifiprice_up}`);
-    console.log(`_shop_id:${_shop_id}`);   
-    handleUpload();
-
-  }, [_shop_id]);
-  //download
-  const [location_download, setlocation_download] = useState('');
-  const [time_download, settime_download] = useState('');
-  const [price_download, setprice_download] = useState('');
-  const [_price_download, set_price_download] = useState('');
-  const [_location_download, set_location_download] = useState('');
-  const [_time_download, set_time_download] = useState('');
-  const handlelocation_download = (event) => {
-    const value = event.target.value;
-    setlocation_download(value);
-  };
-
-  const handletime_download = (event) => {
-    const value = event.target.value;
-    settime_download(value);
-  };
-  
-
-  const handleprice_download = (event) => {
-    setprice_download(event.target.value);
-  };
-
-
-  const {
-    runContractFunction: Download_Wifiprint2,
-    data: downloadTxResponse,
-    isLoading2,
-    isFetching2,
-  } = useWeb3Contract({
-    abi: abi,
-    contractAddress: contractAddress_mumbai,
-    functionName: "Download_Wifiprint2",
-    msgValue: _price_download,
-    params: {
-      location: _location_download,
-      time: _time_download,
-    },
-  })
-
-    
-  useEffect(() => {
-    
-    console.log(`price_download:${_price_download}`);
-
-  }, [_price_download]);
-  useEffect(() => {
-    
-    console.log(`_location_download:${_location_download}`);
-    
-  }, [_location_download]);
-  useEffect(() => {
-    const handledownload = async () => {
-      try {
-        await Download_Wifiprint2({
-          // onComplete:
-          // onError:
-          onSuccess: handleSuccess,
-          onError: (error) => console.log(error),
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    console.log(`_time_download:${_time_download}`);
-    // 在params更新后执行操作
-    // 这里可以放置任何需要在params更新后执行的代码
-    handledownload();
-  }, [_time_download]);
-
+  const [event_uploadAddr_Data, setEvent_uploadAddr_Data] = useState([]);
+  const [event_downloadAddr_Data, setEvent_downloadAddr_Data] = useState([]);
+  const [event_requestId_Data, setEvent_requestId_Data] = useState([]);
   
   
   return (
+
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Wifishare App</title>
         <meta name="description" content="Generated by create next app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -250,27 +150,75 @@ export default function Home() {
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
             onClick={async () => {
               if (isValidWifiprice(wifiPrice) && isValidshopid(shopId)) {
-                let _wifiprice_up2 = ethers.utils.parseEther(wifiPrice);
-                let _shop_id2 = ethers.utils.getAddress(shopId);
-                set_wifixinxi(wifiUpload);
-                set_location(locationUpload);
-                set_wifiprice_up(_wifiprice_up2);
-                set_shop_id(_shop_id2);
+
+                let _wifiprice_up = wifiPrice;
+                let _shopid_up = ethers.utils.getAddress(shopId);
+                let _wifixinxi_up = wifiUpload;
+                let _location_up = locationUpload;
+                setIsLoading(true);
+                const provider = new ethers.providers.Web3Provider(window.ethereum)
+                const signer = provider.getSigner()
+                const contract = new ethers.Contract(contractAddress_mumbai, abi, signer)
+
+                try {
+                  const val = await contract.Upload_Wifiprint(_wifixinxi_up,
+                    _location_up,
+                    _wifiprice_up,
+                    _shopid_up)
+                  /* optional - wait for transaction to be confirmed before rerouting */
+                  /* await provider.waitForTransaction(val.hash) */
+
+                  const results = await val.wait()
+
+                  handleNewNotification()
+                  try {
+                    const events = results.events
+                    console.log('events: ', events)
+                    for (let i = 0; i < events.length; i++) {
+                      const event = events[i];
+                      if (event.event == "upload_wifiprint") {
+                        // 提取参数
+                        const sender = event.args[0];
+                        const location = event.args[1];
+                        const _price = event.args[2];
+                        const timestamp = event.args[3];
+                        console.log("sender:", sender);
+                        console.log("location:", location);
+                        console.log("_price:", _price);
+                        console.log("timestamp:", timestamp);
+                      }
+                    }
+                    setIsLoading(false);
+
+                  }
+                  catch (err) {
+                    console.log(err)
+                    setIsLoading(false);
+                  }
+
+
+                } catch (err) {
+                  console.log('Error: ', err)
+                  setIsLoading(false);
+                }
+
               }
               else {
                 if (!isValidWifiprice(wifiPrice)) {
                   handlewifiprice();
+                  setIsLoading(false);
                 }
                 else {
                   handleaddress();
+                  setIsLoading(false);
                 }
               }
             }
 
             }
-            disabled={isLoading || isFetching}
+            disabled={isLoading}
           >
-            {isLoading || isFetching ? (
+            {isLoading ? (
               <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
             ) : (
               "Upload"
@@ -279,34 +227,334 @@ export default function Home() {
           <hr></hr>
           <input type="number" value={time_download} onChange={handletime_download} placeholder="time for download" />
           <input type="text" value={location_download} onChange={handlelocation_download} placeholder="location for download" />
-          <input type="number" value={price_download} onChange={handleprice_download} placeholder="price for download" />
+
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
             onClick={async () => {
-              if (isValidWifiprice(price_download) && isValidWifiprice(time_download))
-              {
-                let _price_download2 = ethers.utils.parseEther(price_download);
-                
-                set_price_download(_price_download2)
-                set_location_download(location_download)
-                set_time_download(time_download)
-                
-                
+              if (isValidWifiprice(time_download)) {
+                let _time_download = time_download
+                let _location_download = location_download
+                console.log(_time_download, _location_download)
+                setisLoading_request(true);
+                const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+                const signer2 = provider2.getSigner()
+                const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+
+                try {
+                  const val = await contract2.request_wifiDownload(_location_download, _time_download)
+                  const results = await val.wait()
+
+                  handleNewNotification()
+                  try {
+                    const events = results.events
+                    console.log('events: ', events)
+                    let signer_address = await signer2.getAddress();
+                    for (let i = 0; i < events.length; i++) {
+                      const event = events[i];
+                      if (event.event == "requestAdd") {
+                        // 提取参数
+                        const address = event.args[0];
+                        const id = event.args[1];
+                        const allPrice = event.args[2];
+                        const count = event.args[3];
+                        console.log("address:", address);
+                        console.log("request_id:", id);
+                        console.log("allprice:", allPrice);
+                        console.log("count:", count);
+                        setrequestID(id);
+                        setprice_download(allPrice);
+
+
+                      }
+                    }
+
+                    setisLoading_request(false);
+
+                  }
+                  catch (err) {
+                    console.log(err)
+                    setisLoading_request(false);
+                  }
+
+
+                } catch (err) {
+                  console.log('Error: ', err)
+                  setisLoading_request(false);
+
+                }
               }
-              
+              else {
+                setisLoading_request(false);
+              }
+
 
             }
 
             }
-            disabled={isLoading2 || isFetching2}
+            disabled={isLoading_request}
           >
-            {isLoading2 || isFetching2 ? (
+            {isLoading_request ? (
               <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
             ) : (
-              "Download"
+              "Request"
             )}
           </button>
-        
+          <hr></hr>
+          <input type="number" value={requestID} onChange={handlerequestID} placeholder="RequestId" />
+          <input type="number" value={price_download} onChange={handleprice_download} placeholder="Price to pay" />
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+            onClick={async () => {
+              setisLoading_paying(true);
+              const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+              const signer2 = provider2.getSigner()
+              const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+              try {
+                const val = await contract2.PayDownload_byRequestId(requestID, { value: price_download })
+                const results = await val.wait()
+                try {
+                  const events = results.events
+                  console.log('events: ', events)
+
+                  for (let i = 0; i < events.length; i++) {
+                    const event = events[i];
+                    if (event.event == "Download_Wifiprint") {
+
+                      // 提取参数
+                      const WifiPrint = event.args[0];
+                      const location = event.args[1];
+                      const timestamp = event.args[2];
+
+                      console.log("WifiPrint:", WifiPrint);
+                      console.log("location:", location);
+                      console.log("timestamp:", timestamp);
+
+                    }
+
+                    if (event.event == "PaymentReleased") {
+
+                      // 提取参数 _account, _shares[i]
+                      const _account = event.args[0];
+                      const _shares = event.args[1];
+
+                      console.log("_account:", _account);
+                      console.log("_shares:", _shares);
+
+
+                    }
+                  }
+
+                  setisLoading_paying(false);
+
+                }
+                catch (err) {
+                  console.log(err)
+                  setisLoading_paying(false);
+                }
+                handleNewNotification()
+              } catch (err) {
+                console.log(err)
+                setisLoading_paying(false);
+              }
+
+
+            }} disabled={isLoading_paying}
+          >
+            {isLoading_paying ? (
+              <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+            ) : (
+              " "
+            )}
+            pay for download
+          </button>
+          <hr></hr>
+          <input type="number" value={requestID} onChange={handlerequestID} placeholder="Show your wifi by id" />
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+            onClick={async () => {
+              setisLoading_showrid(true);
+              const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+              const signer2 = provider2.getSigner()
+              const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+              try {
+                const val = await contract2.fetch_wifi_byRequestId(requestID)
+                for (let i = 0; i < val.length; i++) {
+                  let id = val[i].id
+                  let Price = val[i].Price
+                  let WifiPrint = val[i].WifiPrint
+                  let location = val[i].location
+                  let Shop = val[i].Shop
+                  let uploader = val[i].uploader
+                  let timestamp = val[i].timestamp
+                  const newEvent = { id, Price, WifiPrint, location, Shop, uploader, timestamp };
+                  setEvent_requestId_Data((prevData) => [...prevData, newEvent])
+                }
+
+                handleNewNotification()
+                setisLoading_showrid(false);
+              } catch (err) {
+                console.log(err)
+                setisLoading_showrid(false);
+              }
+
+
+            }} disabled={isLoading_showrid}
+          >
+            {isLoading_showrid ? (
+              <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+            ) : (
+              " "
+            )}
+            show wifi by requestId
+          </button>
+          <div>
+            {event_requestId_Data.map((event, index) => (
+              <div key={index}>
+                <p>Wifi_id: {event.id.toString()}</p>
+                <p>wifi_Price: {event.Price.toString()}</p>
+                <p>WifiPrint: {event.WifiPrint.toString()}</p>
+                <p>location: {event.location.toString()}</p>
+                <p>ShopAddress: {event.Shop.toString()}</p>
+                <p>uploaderAddress: {event.uploader.toString()}</p>
+                <p>timestamp: {event.timestamp.toString()}</p>
+              </div>
+            ))
+
+            }
+            {event_requestId_Data.length > 0 && (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                onClick={() => setEvent_requestId_Data([])}
+              >
+                清空
+              </button>
+            )}
+          </div>
+          <hr></hr>
+          <input type="text" value={uploader_addr} onChange={handleuploader_addr} placeholder="Show your wifi by uploaderaddress" />
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+            onClick={async () => {
+              setisLoading_showup(true);
+              const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+              const signer2 = provider2.getSigner()
+              const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+              try {
+                let _uploader_addr = ethers.utils.getAddress(uploader_addr);
+                const val = await contract2.fetch_wifi_byUploaderAddr(_uploader_addr)
+                // console.log(val)
+                for (let i = 0; i < val.length; i++) {
+                  let id = val[i].id
+                  let Price = val[i].Price
+                  let WifiPrint = val[i].WifiPrint
+                  let location = val[i].location
+                  let Shop = val[i].Shop
+                  let uploader = val[i].uploader
+                  let timestamp = val[i].timestamp
+                  const newEvent = { id, Price, WifiPrint, location, Shop, uploader, timestamp };
+                  setEvent_uploadAddr_Data((prevData) => [...prevData, newEvent])
+                }
+
+                handleNewNotification()
+                setisLoading_showup(false);
+              } catch (err) {
+                console.log(err)
+                setisLoading_showup(false);
+              }
+
+
+            }} disabled={isLoading_showup}
+          >
+            {isLoading_showup ? (
+              <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+            ) : (
+              " "
+            )}
+            show wifi by uploaderAddress
+          </button>
+          <div>
+            {event_uploadAddr_Data.map((event, index) => (
+              <div key={index}>
+                <p>Wifi_id: {event.id.toString()}</p>
+                <p>wifi_Price: {event.Price.toString()}</p>
+                <p>WifiPrint: {event.WifiPrint.toString()}</p>
+                <p>location: {event.location.toString()}</p>
+                <p>ShopAddress: {event.Shop.toString()}</p>
+                <p>uploaderAddress: {event.uploader.toString()}</p>
+                <p>timestamp: {event.timestamp.toString()}</p>
+              </div>
+            ))
+
+            }
+            {event_uploadAddr_Data.length > 0 && (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                onClick={() => setEvent_uploadAddr_Data([])}
+              >
+                清空
+              </button>
+            )}
+          </div>
+          <hr></hr>
+          <input type="text" value={downloader_addr} onChange={handledownloader_addr} placeholder="Show your wifi by adddress" />
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+            onClick={async () => {
+              setisLoading_showdown(true);
+              const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+              const signer2 = provider2.getSigner()
+              const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+              try {
+                let _downloader_addr = ethers.utils.getAddress(downloader_addr);
+                const val = await contract2.fetch_wifi_byDownloaderAddr(_downloader_addr)
+                for (let i = 0; i < val.length; i++) {
+                  let id = val[i].id
+                  let Price = val[i].Price
+                  let WifiPrint = val[i].WifiPrint
+                  let location = val[i].location
+                  let Shop = val[i].Shop
+                  let uploader = val[i].uploader
+                  let timestamp = val[i].timestamp
+                  const newEvent = { id, Price, WifiPrint, location, Shop, uploader, timestamp };
+                  setEvent_downloadAddr_Data((prevData) => [...prevData, newEvent])
+                }
+
+                handleNewNotification()
+                setisLoading_showdown(false);
+              } catch (err) {
+                console.log(err)
+                setisLoading_showdown(false);
+              }
+
+
+            }} disabled={isLoading_showdown}
+          >
+            {isLoading_showdown ? (
+              <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+            ) : (
+              " "
+            )}
+            show wifi by downloaderAddress
+          </button>
+          <div>
+            {event_downloadAddr_Data.map((event, index) => (
+              <div key={index}>
+                <p>Wifi_id: {event.id.toString()}</p>
+                <p>wifi_Price: {event.Price.toString()}</p>
+                <p>WifiPrint: {event.WifiPrint.toString()}</p>
+                <p>location: {event.location.toString()}</p>
+                <p>ShopAddress: {event.Shop.toString()}</p>
+                <p>uploaderAddress: {event.uploader.toString()}</p>
+                <p>timestamp: {event.timestamp.toString()}</p>
+              </div>
+            ))
+
+            }
+            {event_downloadAddr_Data.length > 0 && (
+              <button
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                onClick={() => setEvent_downloadAddr_Data([])}
+              >
+                清空
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -316,5 +564,3 @@ export default function Home() {
     </div>
   );
 }
-
-

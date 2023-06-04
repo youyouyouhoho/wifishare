@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-
+const { ethers } = require("hardhat")
 describe("Test contract", function () {
     it("Create account", async function () {
         const [owner,addr1,addr2,addr3,addr4] = await ethers.getSigners();
@@ -12,7 +12,7 @@ describe("Test contract", function () {
         console.log("Deploy finish .....")
         const half_ETHER = ethers.utils.parseEther("1");
         const Upload_wifiprint = await wifidemo.connect(addr1).Upload_Wifiprint("123", "BJ", half_ETHER, await addr2.getAddress())
-        const Upload_wifiprint2 = await wifidemo.connect(addr1).Upload_Wifiprint("456", "BJ", half_ETHER, await addr2.getAddress())
+        const Upload_wifiprint2 = await wifidemo.connect(addr2).Upload_Wifiprint("456", "BJ", half_ETHER, await addr3.getAddress())
    
         let baldefore_uploader = await ethers.provider.getBalance(addr1.address)
         let baldefore_uploader2 = await ethers.provider.getBalance(addr3.address)
@@ -26,6 +26,8 @@ describe("Test contract", function () {
 
         const Download_wifiprint = await wifidemo.connect(owner).Download_Wifiprint2("BJ",0,{ value: ONE_ETHER });
         const download_result = await  Download_wifiprint.wait();
+        console.log(`wifi1 : ${Download_wifiprint[0]}`)
+        console.log(`download_result:  ${JSON.parse(JSON.stringify(Download_wifiprint))}`)
         let balafter_owner = await ethers.provider.getBalance(owner.address)
 
         const events = download_result.events;

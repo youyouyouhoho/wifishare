@@ -1,9 +1,9 @@
 //https://mumbai.polygonscan.com/address/0xacb330d1959a80daaa02cd3c1ffecaacca6c40b1 查看合约情况
     export const chainId_mumbai = "80001"
     export const contractAddress_local = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-    export const contractAddress_mumbai = "0x1E92f5d51ce89566A858962F544C9D35835E9075"
+    export const contractAddress_mumbai = "0xAc84bE78D48D4c27C236FEbbc5795c709D32aA7F"
     export const ownerAddress_mumbai = "0xAcb330d1959A80daaA02cd3C1FFecaaCca6C40B1"
-    export const abi = [
+    export const abi =  [
       {
         "anonymous": false,
         "inputs": [
@@ -54,25 +54,6 @@
           {
             "indexed": false,
             "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          }
-        ],
-        "name": "PaymentReceived",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "internalType": "address",
             "name": "to",
             "type": "address"
           },
@@ -84,25 +65,6 @@
           }
         ],
         "name": "PaymentReleased",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "addr",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          }
-        ],
-        "name": "create_user",
         "type": "event"
       },
       {
@@ -129,18 +91,30 @@
         "inputs": [
           {
             "indexed": false,
+            "internalType": "address",
+            "name": "request_address",
+            "type": "address"
+          },
+          {
+            "indexed": false,
             "internalType": "uint256",
-            "name": "a",
+            "name": "requestId",
             "type": "uint256"
           },
           {
             "indexed": false,
             "internalType": "uint256",
-            "name": "b",
+            "name": "price_need",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "wifi_count",
             "type": "uint256"
           }
         ],
-        "name": "show_price",
+        "name": "requestAdd",
         "type": "event"
       },
       {
@@ -177,56 +151,13 @@
       {
         "inputs": [
           {
-            "internalType": "string",
-            "name": "location",
-            "type": "string"
-          },
-          {
             "internalType": "uint256",
-            "name": "time",
+            "name": "requestId",
             "type": "uint256"
           }
         ],
-        "name": "Download_Wifiprint2",
-        "outputs": [
-          {
-            "components": [
-              {
-                "internalType": "uint256",
-                "name": "Price",
-                "type": "uint256"
-              },
-              {
-                "internalType": "string",
-                "name": "WifiPrint",
-                "type": "string"
-              },
-              {
-                "internalType": "string",
-                "name": "location",
-                "type": "string"
-              },
-              {
-                "internalType": "address",
-                "name": "Shop",
-                "type": "address"
-              },
-              {
-                "internalType": "address",
-                "name": "uploader",
-                "type": "address"
-              },
-              {
-                "internalType": "uint256",
-                "name": "timestamp",
-                "type": "uint256"
-              }
-            ],
-            "internalType": "struct WifiPrintPack.WifiPack[]",
-            "name": "wifipack",
-            "type": "tuple[]"
-          }
-        ],
+        "name": "PayDownload_byRequestId",
+        "outputs": [],
         "stateMutability": "payable",
         "type": "function"
       },
@@ -261,133 +192,187 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "downloader",
+            "type": "address"
+          }
+        ],
+        "name": "fetch_wifi_byDownloaderAddr",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "Price",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "WifiPrint",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "location",
+                "type": "string"
+              },
+              {
+                "internalType": "address",
+                "name": "Shop",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "uploader",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct testwifidemo.WifiPack[]",
+            "name": "",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "requestId",
+            "type": "uint256"
+          }
+        ],
+        "name": "fetch_wifi_byRequestId",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "Price",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "WifiPrint",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "location",
+                "type": "string"
+              },
+              {
+                "internalType": "address",
+                "name": "Shop",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "uploader",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct testwifidemo.WifiPack[]",
+            "name": "",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "uploader",
+            "type": "address"
+          }
+        ],
+        "name": "fetch_wifi_byUploaderAddr",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "id",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "Price",
+                "type": "uint256"
+              },
+              {
+                "internalType": "string",
+                "name": "WifiPrint",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "location",
+                "type": "string"
+              },
+              {
+                "internalType": "address",
+                "name": "Shop",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "uploader",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "timestamp",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct testwifidemo.WifiPack[]",
+            "name": "",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "string",
-            "name": "username",
+            "name": "location",
             "type": "string"
           },
           {
-            "internalType": "bool",
-            "name": "is_shop",
-            "type": "bool"
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
           }
         ],
-        "name": "createUser",
+        "name": "request_wifiDownload",
         "outputs": [],
         "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "getVaultBalance",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "bal",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "name": "payees",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "released",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "shares",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "string",
-            "name": "ab",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "c",
-            "type": "string"
-          }
-        ],
-        "name": "test",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "totalReleased",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "totalShares",
-        "outputs": [
-          {
-            "internalType": "uint256",
-            "name": "",
-            "type": "uint256"
-          }
-        ],
-        "stateMutability": "view",
         "type": "function"
       },
       {
