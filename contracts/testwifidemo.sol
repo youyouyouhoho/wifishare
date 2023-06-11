@@ -49,7 +49,7 @@ contract testwifidemo {
     mapping(uint => WifiPack) private idToWifiPack;
     mapping(uint => download_request) private idTodownload_request;
     mapping(uint => WifiPack[]) private idToRequest_wifipack;
-
+    mapping(uint => address) private requestIdtodownloader;
     function Upload_Wifiprint(
         string memory _wifiprint,
         string memory location,
@@ -166,6 +166,8 @@ contract testwifidemo {
         require(requestId >= 0, "wrong requestid");
         download_request memory requestItem = idTodownload_request[requestId];
         require(requestItem.is_pay == true, "you need to pay for download");
+        require(requestIdtodownloader[requestId] == msg.sender,"wrong user");
+        
         uint count = requestItem.count;
         WifiPack[] memory pack = idToRequest_wifipack[requestId];
         WifiPack[] memory wifipack = new WifiPack[](count);
@@ -246,7 +248,7 @@ contract testwifidemo {
         }
         //此请求完成
         idTodownload_request[requestId].is_pay= true;
-    
+        requestIdtodownloader[requestId] = msg.sender;
         //如果钱转多了则返还
         if (msg.value - all_price > 0) {
             address payable _account2 = payable(msg.sender);
