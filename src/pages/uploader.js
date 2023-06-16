@@ -8,11 +8,96 @@ import crypto from "crypto";
 import CryptoJS from 'crypto-js';
 import sjcl from 'sjcl';
 import NodeRSA from 'node-rsa';
-import Header from "components/header";
+import Header from "./header";
+import { ConnectButton } from "@web3uikit/web3";
+import { isAbsolute, relative } from "path";
+import PleaseConnectWallet from "./connect";
+import Link from "next/link";
 
 // import { jswvalue } from "../../jsvalue";
 
+
+function mouseOn(item) {
+    item.style.backgroundColor = "#c6a199"
+  }
+  
+function mouseOut(item) {
+item.style.backgroundColor = "#f8cac0"
+}
+  
+
 function Uploader() {
+    const blankStyle = {
+        width: 1200, height: 600,
+    } 
+
+    const backgroundStyle = {
+        width: 1200, height: 500,
+        backgroundColor: "#ebf6f4",
+        margin: 10,
+    }
+
+    const wifibuttonStyle = {
+        width: 300, height: 66,
+        backgroundColor: "#f8cac0",
+        justifyContent: "center", // 行居中
+        alignItems: "center", // 列居中
+        color:"#534d4c",
+        fontSize: 30,
+        display: "flex",
+        position: "absolute",
+        top: 266,
+        left: 466
+    }
+
+    const requestStyle = {
+        width: 300, height: 66,
+        backgroundColor: "#f8cac0",
+        justifyContent: "center", // 行居中
+        alignItems: "center", // 列居中
+        color:"#534d4c",
+        fontSize: 30,
+        display: "flex",
+        position: "absolute",
+        top: 366,
+        left: 466
+    }
+
+    const showStyle = {
+        width: 300, height: 88,
+        backgroundColor: "#f8cac0",
+        justifyContent: "center", // 行居中
+        alignItems: "center", // 列居中
+        color:"#534d4c",
+        fontSize: 30,
+        display: "flex",
+        position: "absolute",
+        top: 466,
+        left: 466
+    }
+
+    // const buttonStyle = {
+    //     width: 256, height: 66,
+    //     display: "flex",
+    //     justifyContent: "center", // 行居中
+    //     alignItems: "center", // 列居中
+    //     color:"#534d4c",
+    //     fontSize: 30
+    // }
+
+    const downloaderButtonStyle = {
+        width: 180, height: 66,
+        display: "flex",
+        justifyContent: "center", // 行居中
+        alignItems: "center", // 列居中
+        color:"#534d4c",
+        fontSize: 25,
+        backgroundColor: "#efe0d2",
+        position: "absolute",
+        top: 160,
+        left: 1050
+    }
+
     const { isWeb3Enabled, chainId } = useMoralis();
     const dispatch = useNotification()
     const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +176,17 @@ function Uploader() {
         <div className={styles.container}>
             {isWeb3Enabled ? (
                 <div >
+                <Header />
 
+                <div id="downloader page button" style={downloaderButtonStyle} onMouseOver={async() =>{
+                    var button = document.getElementById("downloader page button");
+                    button.style.backgroundColor = "#d8cfc6";
+    
+                    button.onmouseout = function() {
+                        this.style.backgroundColor = "#efe0d2";
+                    }}}>
+                    <Link href={"/downloader"}>downloader</Link>
+                </div>
                     {/* <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
                         onClick={() => {
                             // const key = CryptoJS.enc.Utf8.parse("0123456789abcdef");
@@ -164,340 +259,373 @@ function Uploader() {
 
 
                         }} disabled={isLoading}>生成密钥</button> */}
-                    <hr></hr>
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                        onClick={async () => {
-                            try {
 
-                                console.log("WebSocket connection opened");
-
-                                // 创建 WebSocket 连接
-                                const socket = new WebSocket("ws://39.105.200.134:8080");
-
-                                // 监听 WebSocket 连接打开事件
-                                socket.onopen = async () => {
+                        
+                    <div style={backgroundStyle}>
+                        {/* get my wifi button */}
+                        <button
+                            onClick={async () => {
+                                try {
                                     console.log("WebSocket connection opened");
 
-                                    try {
-                                        // 创建 ethers.js 的 Web3Provider 对象
-                                        const provider = new ethers.providers.Web3Provider(window.ethereum);
+                                    // 创建 WebSocket 连接
+                                    const socket = new WebSocket("ws://39.105.200.134:8080");
 
-                                        // 获取签名对象
-                                        const signer = provider.getSigner();
-                                        let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                                    // 监听 WebSocket 连接打开事件
+                                    socket.onopen = async () => {
+                                        console.log("WebSocket connection opened");
 
-                                        let result = ethers.utils.getAddress(accounts[0])
+                                        try {
+                                            // 创建 ethers.js 的 Web3Provider 对象
+                                            const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-                                        // 发送地址到 WebSocket 服务器
-                                        socket.send("upload" + " " + result);
-                                        // 监听 WebSocket 消息事件
-                                        socket.onmessage = (event) => {
-                                            const message = event.data;
-                                            console.log(message)
-                                            //处理接收到的数据
-                                            let jsonObject
-                                            try {
-                                                jsonObject = JSON.parse(message);
-                                            }
-                                            catch (err) {
+                                            // 获取签名对象
+                                            const signer = provider.getSigner();
+                                            let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-                                            }
-                                            console.log(jsonObject)
+                                            let result = ethers.utils.getAddress(accounts[0])
 
-
-                                            for (var key in jsonObject) {
-                                                var nestedJsonString = jsonObject[key];
-                                                var nestedJsonObject = JSON.parse(nestedJsonString);
-                                                console.log(nestedJsonObject)
-
-                                                // 将每个 nestedJsonObject 添加到数组中
-                                                setNestedJsonObjects((prevState) => [...prevState, nestedJsonObject]);
-                                            }
-                                            socket.close()
-                                        };
-                                    } catch (error) {
-                                        console.error("WebSocket connection error:", error);
-                                    }
-                                };
-                            } catch (error) {
-                                console.error("WebSocket connection error:", error);
-                            }
-                        }}>get my wifi</button>
-                    <hr></hr>
-
-                    <div>
-                        {nestedJsonObjects.map((nestedJsonObject, index) => (
-                            <div key={index}>
-                                <h3><strong>Wifi:</strong> {index + 1}</h3>
-                                 <li><strong>Price:</strong> {nestedJsonObject["price"]}</li>
-                                 <li> <strong>Timestamp:</strong>{nestedJsonObject["timestamp"]}</li>
-                                 <li><strong>Shop location information:</strong> {nestedJsonObject["shop location information"]}</li>
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                                    onClick={() => handleUpload(nestedJsonObject)}
-                                    disabled={isLoading}>{isLoading ? (
-                                        <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
-                                    ) : (
-                                        "上传"
-                                    )}</button>
-                                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                                    onClick={() => handleCancel(index)} disabled={isLoading}>取消</button>
-                                <hr></hr>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                            onClick={async () => {
-                                setisLoading_getuploaderMail(true);
-                                const provider = new ethers.providers.Web3Provider(window.ethereum)
-                                const signer = provider.getSigner()
-                                const contract = new ethers.Contract(contractAddress_mumbai, abi, signer)
-                                try {
-                                    let signer_address = await signer.getAddress();
-                                    const val = await contract.uploader_confirm(signer_address);
-                                    for (let i = 0; i < val.length; i++) {
-
-                                        let wifiid = val[i].wifiid
-                                        let requestId = val[i].requestId
-                                        let downloader_information = val[i].downloader_information
-                                        let downloader_pubilickey = val[i].downloader_pubilickey
-                                        let time = val[i].time
-                                        const newEvent = { wifiid, requestId, downloader_information, downloader_pubilickey, time };
-                                        setEvent_requestId_Data((prevData) => [...prevData, newEvent])
-                                    }
-
-                                    handleNewNotification()
-                                    setisLoading_getuploaderMail(false);
-                                } catch (err) {
-                                    console.log(err);
-                                    setisLoading_getuploaderMail(false);
-                                }
-                            }}
-                            disabled={isLoading_getuploaderMail}>{isLoading_getuploaderMail ? (
-                                <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
-                            ) : (
-                                "查看申请"
-                            )}</button>
-                        <div>
-                            {event_requestId_Data.map((event, index) => (
-                                <div key={index}>
-                                    <ul className="event-list">
-                                        <li><strong>WiFi ID:</strong> {event.wifiid.toString()}</li>
-                                        <li><strong>Request ID:</strong> {event.requestId.toString()}</li>
-                                        <li><strong>Downloader Public Key:</strong> {event.downloader_information.toString()}</li>
-                                        <li><strong>Downloader Information:</strong> {event.downloader_pubilickey.toString()}</li>
-                                        <li><strong>Time:</strong> {event.time.toString()}</li>
-                                    </ul>
-                                    <input type="text" value={private_key} onChange={handleprivate_key} placeholder="Input your private key" />
-                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                                        onClick={async () => {
-                                            if (private_key != "") {
-                                                let istrueUploader = false;
-                                                setisLoading_shenqing(true);
-                                                // 创建 WebSocket 连接
-                                                const socket = new WebSocket("ws://39.105.200.134:8080");
-                                               
-                                                // 创建一个 Promise 来等待连接成功
-                                                const connectPromise = new Promise((resolve, reject) => {
-                                                    socket.onopen = () => {
-                                                        console.log("WebSocket connection is open");
-                                                        resolve(); // 解析 Promise，表示连接成功
-                                                    };
-                                                    socket.onerror = (error) => {
-                                                        console.error("WebSocket connection error:", error);
-                                                        reject(error); // 拒绝 Promise，表示连接失败
-                                                    };
-                                                });
+                                            // 发送地址到 WebSocket 服务器
+                                            socket.send("upload" + " " + result);
+                                            // 监听 WebSocket 消息事件
+                                            socket.onmessage = (event) => {
+                                                const message = event.data;
+                                                console.log(message)
+                                                //处理接收到的数据
+                                                let jsonObject
                                                 try {
-                                                    // 等待连接成功
-                                                    await connectPromise;
-                                                  
-                                                    let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                                                    console.log("connect success");
-                                                    let result = ethers.utils.getAddress(accounts[0]);
-                                                    var hash = sjcl.hash.sha256.hash(private_key);
-                                                    let res = sjcl.codec.hex.fromBits(hash);
-                                                    console.log(res);
-                                                    console.log(result + " " + res.toString());
-                                                  
-                                                    // 发送数据到 WebSocket 服务器
-                                                    socket.send(result + " " + res.toString());
-                                                    console.log(result + " " + res.toString());
-                                                  } catch (error) {
-                                                    console.error("Failed to establish WebSocket connection:", error);
-                                                  }
+                                                    jsonObject = JSON.parse(message);
+                                                }
+                                                catch (err) {
+
+                                                }
+                                                console.log(jsonObject)
+
+
+                                                for (var key in jsonObject) {
+                                                    var nestedJsonString = jsonObject[key];
+                                                    var nestedJsonObject = JSON.parse(nestedJsonString);
+                                                    console.log(nestedJsonObject)
+
+                                                    // 将每个 nestedJsonObject 添加到数组中
+                                                    setNestedJsonObjects((prevState) => [...prevState, nestedJsonObject]);
+                                                }
+                                                socket.close()
+                                            };
+                                        } catch (error) {
+                                            console.error("WebSocket connection error:", error);
+                                        }
+                                    };
+                                } catch (error) {
+                                    console.error("WebSocket connection error:", error);
+                                }
+                            }}>
+                                <div  id="get my wifi" style={wifibuttonStyle} onMouseOver={
+                                    async() =>{
+                                    var button = document.getElementById("get my wifi");
+                                    mouseOn(button);
+                    
+                                    button.onmouseout = function() {
+                                    mouseOut(button);
+                                    }
+                                }}>get my wifi</div>
+                            </button>
+
+                        <div>
+                            {nestedJsonObjects.map((nestedJsonObject, index) => (
+                                <div key={index}>
+                                    <h3><strong>Wifi:</strong> {index + 1}</h3>
+                                    <li><strong>Price:</strong> {nestedJsonObject["price"]}</li>
+                                    <li> <strong>Timestamp:</strong>{nestedJsonObject["timestamp"]}</li>
+                                    <li><strong>Shop location information:</strong> {nestedJsonObject["shop location information"]}</li>
+                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                                        onClick={() => handleUpload(nestedJsonObject)}
+                                        disabled={isLoading}>{isLoading ? (
+                                            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                                        ) : (
+                                            "上传"
+                                        )}</button>
+                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                                        onClick={() => handleCancel(index)} disabled={isLoading}>取消</button>
+                                    <hr></hr>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div>
+                            <button
+                                onClick={async () => {
+                                    setisLoading_getuploaderMail(true);
+                                    const provider = new ethers.providers.Web3Provider(window.ethereum)
+                                    const signer = provider.getSigner()
+                                    const contract = new ethers.Contract(contractAddress_mumbai, abi, signer)
+                                    try {
+                                        let signer_address = await signer.getAddress();
+                                        const val = await contract.uploader_confirm(signer_address);
+                                        for (let i = 0; i < val.length; i++) {
+
+                                            let wifiid = val[i].wifiid
+                                            let requestId = val[i].requestId
+                                            let downloader_information = val[i].downloader_information
+                                            let downloader_pubilickey = val[i].downloader_pubilickey
+                                            let time = val[i].time
+                                            const newEvent = { wifiid, requestId, downloader_information, downloader_pubilickey, time };
+                                            setEvent_requestId_Data((prevData) => [...prevData, newEvent])
+                                        }
+
+                                        handleNewNotification()
+                                        setisLoading_getuploaderMail(false);
+                                    } catch (err) {
+                                        console.log(err);
+                                        setisLoading_getuploaderMail(false);
+                                    }
+                                }}
+                                disabled={isLoading_getuploaderMail}>{isLoading_getuploaderMail ? (
+                                    <div ></div>
+                                ) : (
+                                    <div id="seek" style={requestStyle} onMouseOver={
+                                        async() =>{
+                                        var button = document.getElementById("seek");
+                                        mouseOn(button);
+                        
+                                        button.onmouseout = function() {
+                                        mouseOut(button);
+                                        }
+                                    }}
+                                    >"查看申请"</div>
+                                )}</button>
+
+                            <div>
+                                {event_requestId_Data.map((event, index) => (
+                                    <div key={index}>
+                                        <ul className="event-list">
+                                            <li><strong>WiFi ID:</strong> {event.wifiid.toString()}</li>
+                                            <li><strong>Request ID:</strong> {event.requestId.toString()}</li>
+                                            <li><strong>Downloader Public Key:</strong> {event.downloader_information.toString()}</li>
+                                            <li><strong>Downloader Information:</strong> {event.downloader_pubilickey.toString()}</li>
+                                            <li><strong>Time:</strong> {event.time.toString()}</li>
+                                        </ul>
+                                        <input type="text" value={private_key} onChange={handleprivate_key} placeholder="Input your private key" />
+                                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                                            onClick={async () => {
+                                                if (private_key != "") {
+                                                    let istrueUploader = false;
+                                                    setisLoading_shenqing(true);
+                                                    // 创建 WebSocket 连接
+                                                    const socket = new WebSocket("ws://39.105.200.134:8080");
                                                 
-                                
-                                                socket.onmessage = (event2) => {
-                                                    // 使用 async 函数处理异步操作
-                                                    async function handleAsyncOperation(event2) {
-                                                        console.log(event2.data)
-                                                        if (event2.data == "success") {
-                                                            istrueUploader = true;
-                                                            console.log("True!!!!!");
+                                                    // 创建一个 Promise 来等待连接成功
+                                                    const connectPromise = new Promise((resolve, reject) => {
+                                                        socket.onopen = () => {
+                                                            console.log("WebSocket connection is open");
+                                                            resolve(); // 解析 Promise，表示连接成功
+                                                        };
+                                                        socket.onerror = (error) => {
+                                                            console.error("WebSocket connection error:", error);
+                                                            reject(error); // 拒绝 Promise，表示连接失败
+                                                        };
+                                                    });
+                                                    try {
+                                                        // 等待连接成功
+                                                        await connectPromise;
+                                                    
+                                                        let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                                                        console.log("connect success");
+                                                        let result = ethers.utils.getAddress(accounts[0]);
+                                                        var hash = sjcl.hash.sha256.hash(private_key);
+                                                        let res = sjcl.codec.hex.fromBits(hash);
+                                                        console.log(res);
+                                                        console.log(result + " " + res.toString());
+                                                    
+                                                        // 发送数据到 WebSocket 服务器
+                                                        socket.send(result + " " + res.toString());
+                                                        console.log(result + " " + res.toString());
+                                                    } catch (error) {
+                                                        console.error("Failed to establish WebSocket connection:", error);
+                                                    }
+                                                    
+                                    
+                                                    socket.onmessage = (event2) => {
+                                                        // 使用 async 函数处理异步操作
+                                                        async function handleAsyncOperation(event2) {
+                                                            console.log(event2.data)
+                                                            if (event2.data == "success") {
+                                                                istrueUploader = true;
+                                                                console.log("True!!!!!");
 
-                                                            //向网站询问
-                                                            if (istrueUploader) {
+                                                                //向网站询问
+                                                                if (istrueUploader) {
 
-                                                                const provider2 = new ethers.providers.Web3Provider(window.ethereum)
-                                                                const signer2 = provider2.getSigner()
-                                                                let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                                                                    const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+                                                                    const signer2 = provider2.getSigner()
+                                                                    let accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-                                                                let result = ethers.utils.getAddress(accounts[0])
-                                                                const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+                                                                    let result = ethers.utils.getAddress(accounts[0])
+                                                                    const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
 
-                                                                const pdkey = sjcl.hash.sha256.hash(private_key + event.time.toString());
-                                                                console.log(event.time.toString())
-                                                                let res2 = sjcl.codec.hex.fromBits(pdkey)
-                                                                console.log("duichenMiyao", res2)
-                                                                console.log("event.downloader_pubilickey", event.downloader_information)
-                                                                var pubKey = new NodeRSA(event.downloader_information, 'pkcs8-public');//导入公钥
-                                                                var encrypted = pubKey.encrypt(res2, 'base64');
-                                                                try {
-                                                                    //记得修改
-                                                                    const val = await contract2.uploader_sendPDkey(encrypted, event.requestId, event.wifiid)
-                                                                    const results = await val.wait()
-                                                                    handleNewNotification()
-                                                                    setisLoading_shenqing(false);
-                                                                } catch (err) {
-                                                                    console.log(err);
+                                                                    const pdkey = sjcl.hash.sha256.hash(private_key + event.time.toString());
+                                                                    console.log(event.time.toString())
+                                                                    let res2 = sjcl.codec.hex.fromBits(pdkey)
+                                                                    console.log("duichenMiyao", res2)
+                                                                    console.log("event.downloader_pubilickey", event.downloader_information)
+                                                                    var pubKey = new NodeRSA(event.downloader_information, 'pkcs8-public');//导入公钥
+                                                                    var encrypted = pubKey.encrypt(res2, 'base64');
+                                                                    try {
+                                                                        //记得修改
+                                                                        const val = await contract2.uploader_sendPDkey(encrypted, event.requestId, event.wifiid)
+                                                                        const results = await val.wait()
+                                                                        handleNewNotification()
+                                                                        setisLoading_shenqing(false);
+                                                                    } catch (err) {
+                                                                        console.log(err);
+                                                                    }
                                                                 }
-                                                            }
 
+                                                            }
+                                                            else {
+                                                                // 从事件数组中删除当前事件
+                                                                const updatedEvents = event_requestId_Data.filter((_, i) => i !== index);
+                                                                setEvent_requestId_Data(updatedEvents);
+                                                            }
                                                         }
-                                                        else {
-                                                            // 从事件数组中删除当前事件
-                                                            const updatedEvents = event_requestId_Data.filter((_, i) => i !== index);
-                                                            setEvent_requestId_Data(updatedEvents);
-                                                        }
+
+                                                        // 调用异步函数，并将 event2 作为参数传递
+                                                        handleAsyncOperation(event2);
+
                                                     }
 
-                                                    // 调用异步函数，并将 event2 作为参数传递
-                                                    handleAsyncOperation(event2);
 
+
+
+
+
+
+
+
+
+                                                }
+                                                else {
+                                                    setisLoading_shenqing(false);
+                                                    // 从事件数组中删除当前事件
+                                                    // const updatedEvents = event_requestId_Data.filter((_, i) => i !== index);
+                                                    // setEvent_requestId_Data(updatedEvents);
                                                 }
 
 
-
-
-
-
-
-
-
-
-                                            }
-                                            else {
-                                                setisLoading_shenqing(false);
+                                            }} disabled={isLoading_shenqing}>
+                                            {isLoading_shenqing ? (
+                                                <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                                            ) : (
+                                                " "
+                                            )}同意申请</button>
+                                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                                            onClick={async () => {
+                                                const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+                                                const signer2 = provider2.getSigner()
+                                                const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+                                                try {
+                                                    const val = await contract2.uploader_sendPDkey("No", event.requestId, event.wifiid)
+                                                    const results = await val.wait()
+                                                    handleNewNotification()
+                                                    setisLoading_shenqing(false);
+                                                } catch (err) {
+                                                    console.log(err);
+                                                }
                                                 // 从事件数组中删除当前事件
-                                                // const updatedEvents = event_requestId_Data.filter((_, i) => i !== index);
-                                                // setEvent_requestId_Data(updatedEvents);
-                                            }
+                                                const updatedEvents = event_requestId_Data.filter((_, i) => i !== index);
+                                                setEvent_requestId_Data(updatedEvents);
+                                            }} disabled={isLoading_shenqing}>拒绝申请</button>
+                                    </div>
+                                ))
 
+                                }
+                            </div>
+                            <button style={showStyle}
+                                onClick={async () => {
+                                    setisLoading_showup(true);
+                                    const provider2 = new ethers.providers.Web3Provider(window.ethereum)
+                                    const signer2 = provider2.getSigner()
+                                    const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
+                                    try {
+                                        let address_up = signer2.getAddress()
 
-                                        }} disabled={isLoading_shenqing}>
-                                        {isLoading_shenqing ? (
-                                            <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
-                                        ) : (
-                                            " "
-                                        )}同意申请</button>
-                                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                                        onClick={async () => {
-                                            const provider2 = new ethers.providers.Web3Provider(window.ethereum)
-                                            const signer2 = provider2.getSigner()
-                                            const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
-                                            try {
-                                                const val = await contract2.uploader_sendPDkey("No", event.requestId, event.wifiid)
-                                                const results = await val.wait()
-                                                handleNewNotification()
-                                                setisLoading_shenqing(false);
-                                            } catch (err) {
-                                                console.log(err);
-                                            }
-                                            // 从事件数组中删除当前事件
-                                            const updatedEvents = event_requestId_Data.filter((_, i) => i !== index);
-                                            setEvent_requestId_Data(updatedEvents);
-                                        }} disabled={isLoading_shenqing}>拒绝申请</button>
-                                </div>
-                            ))
+                                        const val = await contract2.fetch_wifi_byUploaderAddr(address_up)
+                                        // console.log(val)
+                                        for (let i = 0; i < val.length; i++) {
+                                            let id = val[i].id
+                                            let Price = val[i].Price
+                                            let WifiPrint = val[i].WifiPrint
+                                            let location = val[i].location
+                                            let Shop = val[i].Shop
+                                            let uploader = val[i].uploader
+                                            let timestamp = val[i].timestamp
+                                            let shop_information = val[i].shop_information
+                                            const newEvent = { id, Price, WifiPrint, location, Shop, uploader, timestamp, shop_information };
+                                            setEvent_uploadAddr_Data((prevData) => [...prevData, newEvent])
+                                        }
 
-                            }
-                        </div>
-                        <hr></hr>
-                        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                            onClick={async () => {
-                                setisLoading_showup(true);
-                                const provider2 = new ethers.providers.Web3Provider(window.ethereum)
-                                const signer2 = provider2.getSigner()
-                                const contract2 = new ethers.Contract(contractAddress_mumbai, abi, signer2)
-                                try {
-                                    let address_up = signer2.getAddress()
-
-                                    const val = await contract2.fetch_wifi_byUploaderAddr(address_up)
-                                    // console.log(val)
-                                    for (let i = 0; i < val.length; i++) {
-                                        let id = val[i].id
-                                        let Price = val[i].Price
-                                        let WifiPrint = val[i].WifiPrint
-                                        let location = val[i].location
-                                        let Shop = val[i].Shop
-                                        let uploader = val[i].uploader
-                                        let timestamp = val[i].timestamp
-                                        let shop_information = val[i].shop_information
-                                        const newEvent = { id, Price, WifiPrint, location, Shop, uploader, timestamp, shop_information };
-                                        setEvent_uploadAddr_Data((prevData) => [...prevData, newEvent])
+                                        handleNewNotification()
+                                        setisLoading_showup(false);
+                                    } catch (err) {
+                                        console.log(err)
+                                        setisLoading_showup(false);
                                     }
 
-                                    handleNewNotification()
-                                    setisLoading_showup(false);
-                                } catch (err) {
-                                    console.log(err)
-                                    setisLoading_showup(false);
+
+                                }} disabled={isLoading_showup}
+                            >
+                                {isLoading_showup ? (
+                                    <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
+                                ) : (
+                                    " "
+
+                                )}
+                                <p id="show" onMouseOver={
+                                    async() =>{
+                                    var button = document.getElementById("show");
+                                    mouseOn(button);
+                    
+                                    button.onmouseout = function() {
+                                    mouseOut(button);
+                                    }
+                                }}>show wifi by uploaderAddress</p>
+                            </button>
+                            <div>
+                                {event_uploadAddr_Data.map((event, index) => (
+                                    <div key={index}>
+                                        <p>Wifi_id: {event.id.toString()}</p>
+                                        <p>wifi_Price: {event.Price.toString()}</p>
+                                        <p>WifiPrint: {event.WifiPrint.toString()}</p>
+                                        <p>location: {event.location.toString()}</p>
+                                        <p>ShopAddress: {event.Shop.toString()}</p>
+                                        <p>uploaderAddress: {event.uploader.toString()}</p>
+                                        <p>timestamp: {event.timestamp.toString()}</p>
+                                        <p>shop_information: {event.shop_information.toString()}</p>
+                                    </div>
+                                ))
+
                                 }
+                                {event_uploadAddr_Data.length > 0 && (
+                                    <button
+                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
+                                        onClick={() => setEvent_uploadAddr_Data([])}
+                                    >
+                                        清空
+                                    </button>
+                                )}
+                            </div>
 
-
-                            }} disabled={isLoading_showup}
-                        >
-                            {isLoading_showup ? (
-                                <div className="animate-spin spinner-border h-8 w-8 border-b-2 rounded-full"></div>
-                            ) : (
-                                " "
-
-                            )}
-                            show wifi by uploaderAddress
-                        </button>
-                        <div>
-                            {event_uploadAddr_Data.map((event, index) => (
-                                <div key={index}>
-                                    <p>Wifi_id: {event.id.toString()}</p>
-                                    <p>wifi_Price: {event.Price.toString()}</p>
-                                    <p>WifiPrint: {event.WifiPrint.toString()}</p>
-                                    <p>location: {event.location.toString()}</p>
-                                    <p>ShopAddress: {event.Shop.toString()}</p>
-                                    <p>uploaderAddress: {event.uploader.toString()}</p>
-                                    <p>timestamp: {event.timestamp.toString()}</p>
-                                    <p>shop_information: {event.shop_information.toString()}</p>
-                                </div>
-                            ))
-
-                            }
-                            {event_uploadAddr_Data.length > 0 && (
-                                <button
-                                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-auto"
-                                    onClick={() => setEvent_uploadAddr_Data([])}
-                                >
-                                    清空
-                                </button>
-                            )}
                         </div>
-                        <hr></hr>
-
                     </div>
+                    
+
+
                 </div>
 
             ) : (
-                <div>Please connect to a Wallet</div>
+                <div >
+                    <PleaseConnectWallet />
+                </div>
             )}
         </div>
 
